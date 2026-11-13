@@ -1,4 +1,4 @@
-# sg-e2e — end-to-end tests (local)
+# sg-e2e-test — end-to-end tests
 
 Playwright tests across **sg-api**, **sg-app** (PWA) and **sg-backoffice**:
 - real browsers: Desktop Chrome, Pixel 7 (Chromium) and iPhone 14 (WebKit)
@@ -8,7 +8,7 @@ The test cases are in [TEST_CASES.md](TEST_CASES.md), and what the sweep found i
 
 ## Setup
 
-The three app repos must sit next to this folder:
+The three app repos ([sg-api](https://github.com/dimsurd/sg-api), [sg-app](https://github.com/dimsurd/sg-app), [sg-backoffice](https://github.com/dimsurd/sg-backoffice)) must sit next to this folder:
 
 ```
 star-generation/
