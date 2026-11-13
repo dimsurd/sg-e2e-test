@@ -22,8 +22,11 @@ test.describe("Student journey", () => {
     await as(page, "student2", "/student/browse");
     const card = page.locator('[data-slot="card"]').filter({ hasText: "Math Group A" });
     await expect(card).toContainText(`${idr(150000)} / hour`);
-    await expect(card).toContainText(`12h package = ${idr(1800000)}`);
-    await expect(card).toContainText("1 of 2 seats left");
+    await expect(card).toContainText("12h package");
+    await expect(card).toContainText(idr(1800000));
+    await expect(card).toContainText("Grade 8"); // level badge derived from the class
+    await expect(card).toContainText("1 of 2 students");
+    await expect(card).toContainText("1 seat left");
   });
 
   test("STU-02 enrolling holds the seat and creates the package invoice @p0", async ({ page }) => {

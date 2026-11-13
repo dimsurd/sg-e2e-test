@@ -47,7 +47,7 @@ Priority: **P0** = must pass before submitting · **P1** = important · **P2** =
 
 | ID | Pri | Case | Steps | Expected |
 |---|---|---|---|---|
-| STU-01 | P0 | Catalogue | student2 → Browse | Math Group A shows Rp150,000/h, 12h package = Rp1,800,000, "1 of 2 seats left" |
+| STU-01 | P0 | Catalogue | student2 → Browse | Math Group A card: Grade 8 badge, Rp150,000/h, 12h package Rp1,800,000, "1 of 2 students" + "1 seat left" |
 | STU-02 | P0 | Enroll | Enroll → confirm | Toast "You're enrolled"; redirected to Invoices; invoice INV-…: 12h × Rp150,000 = Rp1,800,000, Unpaid, due in 7 days |
 | STU-03 | P0 | No access before paying | After STU-02, open My classes and `/student/classes/<id>` | My classes empty with "Pay to unlock" banner; class page shows an error/not found, never the schedule |
 | STU-04 | P0 | Simulated payment | Invoices → Pay → Simulate payment | Toast "Payment received… added to 2 upcoming lesson(s)"; invoice Paid |
