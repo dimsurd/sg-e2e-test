@@ -51,14 +51,14 @@ Other details:
 | Spec | Cases | Notes |
 |---|---|---|
 | `auth.spec.ts` | AUTH-01…13 | Role-separated sign-in, redirects, two sessions in one browser, tampered cookies |
-| `student.spec.ts` | STU-01…14 | Pixel 7. Enroll → pay → access, full class, approved logbooks only, Buy package |
+| `student.spec.ts` | STU-01…15 | Pixel 7. Enroll → pay → access, full class, approved logbooks only, Buy package, catalogue search |
 | `tutor.spec.ts` | TUT-01…16 | Pixel 7. WIB scheduling, overlap, logbook entries, submit, sent-back loop, earnings |
 | `admin.spec.ts` | ADM-01…19 | Desktop. Dashboard maths, pay/undo/void, review + idempotent approve, class rules |
 | `cross-app.spec.ts` | X-01…05 | Three people on three devices, one flow; the same numbers in every app |
 | `security.spec.ts` | SEC-01…08 | 403/404 per role, unapproved text never reaches students, last-seat race, bad input |
 | `timezone.spec.ts` | TZ-01…03 | Browsers in London and Los Angeles still see and store WIB |
 | `pwa.spec.ts` | PWA-01…08 | Manifest/icons, service worker, `/api` never cached, offline, install on Android + iOS |
-| `ui.spec.ts` | UI-01…05 | No sideways scroll or hidden content on phones, axe (WCAG 2 AA), keyboard, theme |
+| `ui.spec.ts` | UI-01…06 | No sideways scroll or hidden content on phones, axe (WCAG 2 AA), keyboard, theme, dialog title vs ✕ |
 | `resilience.spec.ts` | RES-01…03 | API down / 502, double clicks on money actions, slow API |
 
-All 94 cases are automated: **95 tests**, because UI-01 runs on both phones. Latest full runs: **95 passed, twice in a row**.
+All 96 cases are automated: **99 tests**, because UI-01 and UI-06 run on several devices. Latest full run: **99 passed**.

@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { login } from "../fixtures/auth";
-import { resetDb } from "../fixtures/db";
+import { loadCatalog, resetDb } from "../fixtures/db";
 import { APP, BO, IDS, type Who } from "../fixtures/env";
 import { DESKTOP, PIXEL_7 } from "../fixtures/time";
 
@@ -158,5 +158,51 @@ test.describe("Responsive & accessibility", () => {
     await appPage.goto(`${APP}/student`);
     const active = appPage.locator('nav[aria-label="Main"] a[aria-current="page"]');
     await expect(active).toHaveCSS("background-color", "rgb(241, 192, 25)"); // gold
+  });
+
+  // ---------------------------------------------------------------- UI-06
+  async function expectTitleClearOfClose(dialog: Locator) {
+    const title = await dialog.getByRole("heading").first().boundingBox();
+    const close = await dialog.getByRole("button", { name: "Close" }).boundingBox();
+    expect(title && close).toBeTruthy();
+    const overlaps =
+      title!.x < close!.x + close!.width &&
+      title!.x + title!.width > close!.x &&
+      title!.y < close!.y + close!.height &&
+      title!.y + title!.height > close!.y;
+    expect(overlaps, `title ${JSON.stringify(title)} overlaps close ${JSON.stringify(close)}`).toBe(false);
+  }
+
+  async function openLongEnrollDialog(page: Page) {
+    await resetDb();
+    await loadCatalog();
+    await login(page, "student3");
+    await page.goto(`${APP}/student/browse`);
+    await page.getByRole("searchbox", { name: "Search classes" }).fill("primary checkpoint science");
+    await page.getByRole("button", { name: "Enroll" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByRole("heading")).toContainText("Cambridge Primary Checkpoint Science Grade 6");
+    return dialog;
+  }
+
+  test.describe("Dialog close button (Pixel 7)", () => {
+    test.use(PIXEL_7);
+    test("UI-06 a long dialog title never runs under the close button @p1", async ({ page }) => {
+      await expectTitleClearOfClose(await openLongEnrollDialog(page));
+    });
+  });
+
+  test("UI-06 a long dialog title never runs under the close button (iPhone) @p1 @ios", async ({ page }) => {
+    await expectTitleClearOfClose(await openLongEnrollDialog(page));
+  });
+
+  test("UI-06 back office dialogs keep the title clear too @p1", async ({ page }) => {
+    await resetDb();
+    await loadCatalog();
+    await login(page, "admin");
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await page.goto(`${BO}/classes`);
+    await page.locator("tr").filter({ hasText: "Cambridge Secondary Checkpoint English Grade 8" }).getByRole("button", { name: "Edit" }).click();
+    await expectTitleClearOfClose(page.getByRole("dialog"));
   });
 });

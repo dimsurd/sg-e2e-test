@@ -8,6 +8,12 @@ const pool = new pg.Pool({ connectionString: E2E_DATABASE_URL, max: 2, options: 
 pool.on("error", () => undefined);
 
 const seedSql = readFileSync(path.resolve(import.meta.dirname, "../../sg-api/db/seed.sql"), "utf8");
+const catalogSql = readFileSync(path.resolve(import.meta.dirname, "../../sg-api/db/seed-catalog.sql"), "utf8");
+
+/** Adds the optional demo catalogue (16 live classes) on top of the seed. */
+export async function loadCatalog() {
+  await pool.query(catalogSql);
+}
 
 /** Wipe every row and re-run the seed. Fast, and keeps the API's connections alive. */
 export async function resetDb() {

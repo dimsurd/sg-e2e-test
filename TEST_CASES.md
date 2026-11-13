@@ -61,6 +61,7 @@ Priority: **P0** = must pass before submitting · **P1** = important · **P2** =
 | STU-12 | P1 | Cancelled lesson visible with reason | Tutor cancels an upcoming lesson → student schedule | Lesson struck through with the reason; booked hours go down by 1h30 |
 | STU-13 | P1 | Lessons before joining are hidden | student2 (new) → class → Schedule | Past lessons from before enrolling don't appear |
 | STU-14 | P2 | Skipped lesson explained | A lesson scheduled while student is out of hours | Shown as "Not included — not enough hours" |
+| STU-15 | P1 | Search the catalogue | Load demo catalogue (17 classes) → search "osn smp friday", "CITRA", "chemistry" → Show all / ✕ | 3 matches with "3 of 17 classes"; tutor search case-insensitive (8); no-match message; clearing restores all 17 |
 
 ## 3. Tutor journey (PWA)
 
@@ -160,6 +161,7 @@ Priority: **P0** = must pass before submitting · **P1** = important · **P2** =
 | UI-03 | P1 | Axe scan (`@axe-core/playwright`) on main pages | No critical/serious violations |
 | UI-04 | P2 | Keyboard | Login, dialogs (open, submit, Esc to close) usable with keyboard only |
 | UI-05 | P2 | Theme | Primary buttons navy `#2F3F5F`, active nav gold `#F1C019`, font DM Sans |
+| UI-06 | P1 | Dialog title vs close button | Open the Enroll dialog for a long class name (Pixel 7, iPhone) and the back office Edit class dialog | Title and ✕ bounding boxes never overlap |
 
 ## 10. Resilience
 
@@ -171,7 +173,7 @@ Priority: **P0** = must pass before submitting · **P1** = important · **P2** =
 
 ---
 
-**Total: 94 cases** (P0 = 49, P1 = 35, P2 = 10).
+**Total: 96 cases** (P0 = 49, P1 = 37, P2 = 10).
 
 ## Structure
 

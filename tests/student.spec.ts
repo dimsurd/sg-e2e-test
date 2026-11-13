@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { scheduleLesson } from "../fixtures/actions";
 import { apiAs, login } from "../fixtures/auth";
-import { one, resetDb } from "../fixtures/db";
+import { loadCatalog, one, resetDb } from "../fixtures/db";
 import { APP, IDS } from "../fixtures/env";
 import { PIXEL_7, idr } from "../fixtures/time";
 
@@ -161,5 +161,30 @@ test.describe("Student journey", () => {
     expect(row.n).toBe(0);
     await as(page, "student1", `/student/classes/${IDS.mathClass}`);
     await expect(page.getByText("Not included — not enough hours when it was scheduled")).toBeVisible();
+  });
+
+  test("STU-15 search the catalogue by subject, level, day or tutor @p1", async ({ page }) => {
+    await loadCatalog(); // 17 classes
+    await as(page, "student3", "/student/browse");
+    const cards = page.locator('[data-slot="card"]');
+    await expect(cards).toHaveCount(17);
+    const search = page.getByRole("searchbox", { name: "Search classes" });
+
+    await search.fill("osn smp friday"); // every word must match, in any order
+    await expect(cards).toHaveCount(3);
+    await expect(page.getByText("3 of 17 classes")).toBeVisible();
+    for (const card of await cards.all()) await expect(card).toContainText(/OSN.*SMP/);
+
+    await search.fill("CITRA"); // tutor name, case-insensitive
+    await expect(cards).toHaveCount(8);
+
+    await search.fill("chemistry");
+    await expect(page.getByText("No classes match “chemistry”")).toBeVisible();
+    await page.getByRole("button", { name: "Show all classes" }).click();
+    await expect(cards).toHaveCount(17);
+    await search.fill("osn");
+    await page.getByRole("button", { name: "Clear search" }).click(); // the ✕ in the box
+    await expect(search).toHaveValue("");
+    await expect(cards).toHaveCount(17);
   });
 });
