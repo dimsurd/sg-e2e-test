@@ -1,0 +1,20 @@
+{
+  "name": "sg-e2e",
+  "private": true,
+  "description": "End-to-end tests for sg-api, sg-app and sg-backoffice",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:p0": "playwright test --grep @p0",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
+    "@types/node": "20",
+    "@types/pg": "^8.23.1",
+    "pg": "^8.23.1",
+    "typescript": "^7.0.2"
+  }
+}
