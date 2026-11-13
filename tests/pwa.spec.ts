@@ -80,7 +80,7 @@ test.describe("PWA (production build)", () => {
   test("PWA-04 + PWA-05 offline fallback and banner, then recovery @p1", async ({ page, context }) => {
     await login(page, "student1");
     await withServiceWorker(page, "/student");
-    await expect(page.getByText("Math Group A")).toBeVisible();
+    await expect(page.getByText("Math Group A").first()).toBeVisible();
 
     await context.setOffline(true);
     await expect(page.getByText("You're offline — we'll refresh as soon as you're back.")).toBeVisible();
@@ -89,7 +89,7 @@ test.describe("PWA (production build)", () => {
 
     await context.setOffline(false);
     await page.goto(`${APP}/student`);
-    await expect(page.getByText("Math Group A")).toBeVisible();
+    await expect(page.getByText("Math Group A").first()).toBeVisible();
     await expect(page.getByText("You're offline — we'll refresh")).toHaveCount(0);
   });
 
@@ -125,7 +125,7 @@ test.describe("PWA (production build)", () => {
     expect(before[pagesCache]!.length).toBeGreaterThan(1);
 
     await page.getByRole("button", { name: "Account" }).click();
-    await page.getByRole("menuitem", { name: "Log out" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Log out" }).click();
     await expect(page).toHaveURL(`${APP}/login`);
     // Only public pages may remain (the login page is re-cached when the browser lands on it).
     await expect

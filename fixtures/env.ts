@@ -1,7 +1,24 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 export const API = "http://localhost:4100";
 export const APP = "http://localhost:3100";
 export const BO = "http://localhost:3101";
-export const E2E_DATABASE_URL = process.env.E2E_DATABASE_URL ?? "postgres://localhost:5432/star_generation_e2e";
+/** Same server and credentials as sg-api/.env's DATABASE_URL, but its own database. */
+function e2eDatabaseUrl() {
+  if (process.env.E2E_DATABASE_URL) return process.env.E2E_DATABASE_URL;
+  let base = "postgres://localhost:5432/star_generation";
+  try {
+    const line = readFileSync(path.resolve(import.meta.dirname, "../../sg-api/.env"), "utf8")
+      .split("\n")
+      .find((l) => l.startsWith("DATABASE_URL="));
+    if (line) base = line.slice("DATABASE_URL=".length).trim();
+  } catch {
+    // no .env: fall back to the passwordless local default
+  }
+  return base.replace(/\/[^/?]+(\?|$)/, "/star_generation_e2e$1");
+}
+export const E2E_DATABASE_URL = e2eDatabaseUrl();
 
 export const PASSWORD = "Password123!";
 

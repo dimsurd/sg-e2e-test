@@ -9,7 +9,8 @@ test.beforeAll(resetDb);
 
 const APP_PAGES: [Who, string][] = [
   ["student1", "/student"],
-  ["student1", "/student/browse"],
+  ["student1", "/student/classes"],
+  ["student1", "/student/explore"],
   ["student1", "/student/invoices"],
   ["student1", `/student/classes/${IDS.mathClass}`],
   ["tutor1", "/tutor"],
@@ -179,6 +180,7 @@ test.describe("Responsive & accessibility", () => {
     await login(page, "student3");
     await page.goto(`${APP}/student/browse`);
     await page.getByRole("searchbox", { name: "Search classes" }).fill("primary checkpoint science");
+    await expect(page.getByText("1 class matches")).toBeVisible(); // wait for the server-side search
     await page.getByRole("button", { name: "Enroll" }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog.getByRole("heading")).toContainText("Cambridge Primary Checkpoint Science Grade 6");

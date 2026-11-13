@@ -53,7 +53,7 @@ test.describe("Student journey", () => {
   });
 
   test("STU-03 nothing is accessible before paying @p0", async ({ page }) => {
-    await as(page, "student2");
+    await as(page, "student2", "/student/classes");
     await expect(page.getByText("No paid classes yet")).toBeVisible();
     await expect(page.getByText("1 invoice to pay")).toBeVisible();
     await page.goto(classUrl);
@@ -78,7 +78,7 @@ test.describe("Student journey", () => {
   });
 
   test("STU-05 the class unlocks with the right hours @p0", async ({ page }) => {
-    await as(page, "student2");
+    await as(page, "student2", "/student/classes");
     const card = page.locator('[data-slot="card"]').filter({ hasText: "Math Group A" });
     await expect(card).toContainText("12h");
     await expect(card).toContainText("left of 12h");
@@ -107,7 +107,7 @@ test.describe("Student journey", () => {
   });
 
   test("STU-08 student1's balance matches the seed @p0", async ({ page }) => {
-    await as(page, "student1");
+    await as(page, "student1", "/student/classes");
     const card = page.locator('[data-slot="card"]').filter({ hasText: "Math Group A" });
     await expect(card).toContainText("6h");
     await expect(card).toContainText("left of 12h");
@@ -120,7 +120,7 @@ test.describe("Student journey", () => {
     expect(res.status()).toBe(200);
     await as(page, "student1", `/student/classes/${IDS.mathClass}`);
     await expect(page.getByText("Cancelled: Tutor is sick")).toBeVisible();
-    await page.goto(`${APP}/student`);
+    await page.goto(`${APP}/student/classes`);
     await expect(page.locator('[data-slot="card"]').filter({ hasText: "Math Group A" })).toContainText(
       "6h used · 1h 30m booked for upcoming lessons",
     );
@@ -131,7 +131,7 @@ test.describe("Student journey", () => {
     const tutor = await apiAs("tutor1");
     for (const d of [20, 21, 22]) await scheduleLesson(tutor, { daysFromNow: d, start: "10:00", end: "11:30" });
 
-    await as(page, "student1");
+    await as(page, "student1", "/student/classes");
     const card = page.locator('[data-slot="card"]').filter({ hasText: "Math Group A" });
     await expect(card).toContainText("Low hours");
     await card.getByRole("button", { name: "Buy package" }).click();
@@ -139,7 +139,7 @@ test.describe("Student journey", () => {
     await expect(page).toHaveURL(`${APP}/student/invoices`);
     await expect(page.getByRole("button", { name: `Pay ${idr(1800000)}` })).toBeVisible();
 
-    await page.goto(`${APP}/student`);
+    await page.goto(`${APP}/student/classes`);
     await expect(page.getByText("Your new package invoice is waiting.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Buy package" })).toHaveCount(0);
   });
@@ -166,16 +166,23 @@ test.describe("Student journey", () => {
     await expect(page.getByText("Not included — not enough hours when it was scheduled")).toBeVisible();
   });
 
-  test("STU-15 search the catalogue by subject, level, day or tutor @p1", async ({ page }) => {
+  test("STU-15 Explore: server-side search and lazy loading @p1", async ({ page }) => {
     await loadCatalog(); // 17 classes
-    await as(page, "student3", "/student/browse");
-    const cards = page.locator('[data-slot="card"]');
-    await expect(cards).toHaveCount(17);
-    const search = page.getByRole("searchbox", { name: "Search classes" });
+    await as(page, "student3", "/student/explore");
+    const list = page.getByRole("region", { name: "Class catalogue" });
+    const cards = list.locator('[data-slot="card"]');
+    await expect(page.getByText("17 classes", { exact: true })).toBeVisible();
+    await expect(cards).toHaveCount(10); // first page only
 
-    await search.fill("osn smp friday"); // every word must match, in any order
+    // Scrolling to the end loads the rest.
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(cards).toHaveCount(17);
+    await expect(page.getByText("You've seen all 17 classes")).toBeVisible();
+
+    const search = page.getByRole("searchbox", { name: "Search classes" });
+    await search.fill("osn smp friday"); // every word, any order, matched by the API
+    await expect(page.getByText("3 classes match “osn smp friday”")).toBeVisible();
     await expect(cards).toHaveCount(3);
-    await expect(page.getByText("3 of 17 classes")).toBeVisible();
     for (const card of await cards.all()) await expect(card).toContainText(/OSN.*SMP/);
 
     await search.fill("CITRA"); // tutor name, case-insensitive
@@ -184,10 +191,23 @@ test.describe("Student journey", () => {
     await search.fill("chemistry");
     await expect(page.getByText("No classes match “chemistry”")).toBeVisible();
     await page.getByRole("button", { name: "Show all classes" }).click();
-    await expect(cards).toHaveCount(17);
+    await expect(page.getByText("17 classes", { exact: true })).toBeVisible();
     await search.fill("osn");
     await page.getByRole("button", { name: "Clear search" }).click(); // the ✕ in the box
     await expect(search).toHaveValue("");
-    await expect(cards).toHaveCount(17);
+  });
+
+  test("STU-16 invoice status filters with counts @p2", async ({ page }) => {
+    await as(page, "student1", "/student/invoices");
+    const filters = page.getByRole("group", { name: "Filter invoices" });
+    const cards = page.locator("ul").locator('[data-slot="card"]');
+    await expect(cards.first()).toBeVisible(); // wait for the list before counting
+    const all = await cards.count();
+    await expect(filters.getByRole("button", { name: /^All/ })).toContainText(String(all));
+    await filters.getByRole("button", { name: /^Paid/ }).click();
+    await expect(filters.getByRole("button", { name: /^Paid/ })).toHaveAttribute("aria-pressed", "true");
+    for (const card of await cards.all()) await expect(card).toContainText("Paid");
+    await filters.getByRole("button", { name: /^Unpaid/ }).click();
+    for (const card of await cards.all()) await expect(card.getByRole("button", { name: /^Pay / })).toBeVisible();
   });
 });

@@ -32,7 +32,18 @@ test.describe("Tutor journey", () => {
     await as(page, "tutor1", `${APP}/tutor`);
     await expect(page.getByRole("heading", { name: "Upcoming lessons" })).toBeVisible();
     await expect(page.getByText(/16:00–17:30 WIB/)).toHaveCount(2);
-    await expect(page.getByText("1 active student(s)")).toBeVisible();
+  });
+
+  test("TUT-17 My classes menu: seats, next lesson and quick actions @p1", async ({ page }) => {
+    await as(page, "tutor1", `${APP}/tutor`);
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "My classes" }).click();
+    await expect(page).toHaveURL(`${APP}/tutor/classes`);
+    const card = page.locator('[data-slot="card"]').filter({ hasText: "Math Group A" });
+    await expect(card).toContainText("1 active student(s)");
+    await expect(card).toContainText("1 of 2 seats");
+    await expect(card).toContainText(`You earn ${idr(100000)} per lesson hour`);
+    await card.getByRole("link", { name: "Schedule" }).click();
+    await expect(page).toHaveURL(`${APP}/tutor/classes/${IDS.mathClass}`);
   });
 
   test("TUT-11 earnings: approved vs pending @p0", async ({ page }) => {
@@ -118,7 +129,7 @@ test.describe("Tutor journey", () => {
   test("TUT-13 an approved month is read-only @p1", async ({ page }) => {
     const [{ m }] = await q<{ m: string }>("SELECT to_char(month,'YYYY-MM') AS m FROM logbooks WHERE id = $1", [IDS.approvedLogbook]);
     await as(page, "tutor1", `${APP}/tutor/logbooks/${IDS.mathClass}/${m}`);
-    await expect(page.getByRole("alert").filter({ hasText: "Approved" })).toBeVisible();
+    await expect(page.getByText("Students can read it now")).toBeVisible();
     await expect(page.getByRole("button", { name: "Edit" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /submit/i })).toHaveCount(0);
   });
@@ -203,12 +214,12 @@ test.describe("Tutor journey", () => {
     await expect(card).toBeVisible();
     await card.click();
     await expect(page.getByText("Please add the homework you set in lesson 2.").first()).toBeVisible();
-    await page.getByRole("button", { name: "Edit" }).nth(1).click();
+    await page.locator("li").filter({ hasText: "Lesson 2 ·" }).getByRole("button", { name: "Edit" }).click();
     await page.getByLabel("What happened").fill("Paper squares, then ladder problems. Homework: worksheet 4.");
     await page.getByRole("button", { name: "Save entry" }).click();
     await expect(page.getByText("Lesson 2 saved")).toBeVisible();
     await page.getByRole("button", { name: "Resubmit for review" }).click();
-    await page.getByRole("button", { name: "Submit", exact: true }).click();
+    await page.getByRole("button", { name: "Resubmit", exact: true }).click();
     await expect(page.getByText("Awaiting review").first()).toBeVisible();
   });
 });

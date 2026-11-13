@@ -20,7 +20,7 @@ export async function uiLogin(page: Page, who: Who | string, password = PASSWORD
   const addr = isWho ? email(who as Who) : who;
   await page.goto(`${origin ?? (isWho ? originOf(who as Who) : APP)}/login`);
   await page.getByLabel("Email").fill(addr);
-  await page.getByLabel("Password").fill(password);
+  await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
 }
 

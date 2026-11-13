@@ -35,13 +35,13 @@ test.describe("Authentication & routing", () => {
   test("AUTH-05 student lands on /student @p0", async ({ page }) => {
     await uiLogin(page, "student1");
     await expect(page).toHaveURL(`${APP}/student`);
-    await expect(page.getByRole("heading", { name: "My classes" })).toBeVisible();
+    await expect(page.getByText("Hi, Dimas 👋")).toBeVisible();
   });
 
   test("AUTH-06 tutor lands on /tutor @p0", async ({ page }) => {
     await uiLogin(page, "tutor1");
     await expect(page).toHaveURL(`${APP}/tutor`);
-    await expect(page.getByRole("heading", { name: "Teaching" })).toBeVisible();
+    await expect(page.getByText("Hi, Budi 👋")).toBeVisible();
   });
 
   test("AUTH-07 logged-out users are sent to login @p0", async ({ page }) => {
@@ -63,7 +63,7 @@ test.describe("Authentication & routing", () => {
   test("AUTH-09 back office returns to the requested page after login @p1", async ({ page }) => {
     await page.goto(`${BO}/logbooks`);
     await page.getByLabel("Email").fill(email("admin"));
-    await page.getByLabel("Password").fill("Password123!");
+    await page.getByLabel("Password", { exact: true }).fill("Password123!");
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(`${BO}/logbooks`);
     await expect(page.getByRole("heading", { name: "Logbooks" })).toBeVisible();
@@ -75,14 +75,14 @@ test.describe("Authentication & routing", () => {
     await expect(page.getByRole("heading", { name: "Money dashboard" })).toBeVisible();
     await page.getByRole("button", { name: "Log out" }).click();
     await expect(page).toHaveURL(`${BO}/login`);
+    // Going back must not show data again: the page bounces to login on its own.
     await page.goBack();
-    await page.reload();
     await expect(page).toHaveURL(/\/login/);
 
     await login(page, "student1");
     await page.goto(`${APP}/student`);
     await page.getByRole("button", { name: "Account" }).click();
-    await page.getByRole("menuitem", { name: "Log out" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Log out" }).click();
     await expect(page).toHaveURL(`${APP}/login`);
     await page.goto(`${APP}/student`);
     await expect(page).toHaveURL(`${APP}/login`);
@@ -96,7 +96,7 @@ test.describe("Authentication & routing", () => {
     await bo.goto(`${BO}/`);
     await app.goto(`${APP}/student`);
     await expect(bo.getByText("Ayu Pratiwi")).toBeVisible();
-    await expect(app.getByText("Math Group A")).toBeVisible();
+    await expect(app.getByText("Hi, Dimas 👋")).toBeVisible();
   });
 
   test("AUTH-12 a tampered session cookie leads back to login without a crash @p1", async ({ page, context }) => {
@@ -114,6 +114,21 @@ test.describe("Authentication & routing", () => {
     await page.goto(`${APP}/login`);
     await page.getByRole("button", { name: /student1@stargeneration\.test/ }).click();
     await expect(page.getByLabel("Email")).toHaveValue(email("student1"));
-    await expect(page.getByLabel("Password")).toBeFocused();
+    await expect(page.getByLabel("Password", { exact: true })).toBeFocused();
+  });
+
+  test("AUTH-14 password can be shown and hidden on both sign-in pages @p2", async ({ page }) => {
+    for (const origin of [APP, BO]) {
+      await page.goto(`${origin}/login`);
+      const field = page.getByLabel("Password", { exact: true });
+      await field.fill("Password123!");
+      await expect(field).toHaveAttribute("type", "password");
+      await page.getByRole("button", { name: "Show password" }).click();
+      await expect(field).toHaveAttribute("type", "text");
+      await expect(field).toHaveValue("Password123!");
+      await expect(page.getByRole("button", { name: "Hide password" })).toHaveAttribute("aria-pressed", "true");
+      await page.getByRole("button", { name: "Hide password" }).click();
+      await expect(field).toHaveAttribute("type", "password");
+    }
   });
 });

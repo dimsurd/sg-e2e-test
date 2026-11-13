@@ -112,7 +112,7 @@ test.describe("Cross-app consistency", () => {
       [IDS.student1Enrollment],
     );
     const student = await personOn(browser, "student1");
-    await student.goto(`${APP}/student`);
+    await student.goto(`${APP}/student/classes`);
     const card = student.locator('[data-slot="card"]').filter({ hasText: "Math Group A" });
     await expect(card).toContainText(h(b.remaining));
     await expect(card).toContainText("left of 12h");

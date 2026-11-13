@@ -41,6 +41,7 @@ Priority: **P0** = must pass before submitting · **P1** = important · **P2** =
 | AUTH-10 | P1 | Logout | Log out from each app | Back on `/login`; going back in history does not show data |
 | AUTH-11 | P1 | Both apps signed in at once | Admin in back office + student in app, same browser | Both sessions work independently (separate cookies) |
 | AUTH-12 | P1 | Expired / tampered session | Replace the session cookie with garbage, reload | API answers 401 → user lands on `/login` without a crash |
+| AUTH-14 | P2 | Show/hide password | Type a password, tap the eye on app and back office login | Field switches to plain text and back; button label and aria-pressed follow |
 | AUTH-13 | P2 | Demo shortcuts on app login | Tap a demo account | Email filled, focus moves to password |
 
 ## 2. Student journey (PWA)
@@ -61,7 +62,18 @@ Priority: **P0** = must pass before submitting · **P1** = important · **P2** =
 | STU-12 | P1 | Cancelled lesson visible with reason | Tutor cancels an upcoming lesson → student schedule | Lesson struck through with the reason; booked hours go down by 1h30 |
 | STU-13 | P1 | Lessons before joining are hidden | student2 (new) → class → Schedule | Past lessons from before enrolling don't appear |
 | STU-14 | P2 | Skipped lesson explained | A lesson scheduled while student is out of hours | Shown as "Not included — not enough hours" |
-| STU-15 | P1 | Search the catalogue | Load demo catalogue (17 classes) → search "osn smp friday", "CITRA", "chemistry" → Show all / ✕ | 3 matches with "3 of 17 classes"; tutor search case-insensitive (8); no-match message; clearing restores all 17 |
+| STU-16 | P2 | Invoice filters | student1 → Invoices → Paid / Unpaid chips | Counts match; each filter shows only that status |
+| STU-15 | P1 | Explore: search + lazy load | Demo catalogue (17) → Explore → scroll; search "osn smp friday", "CITRA", "chemistry" | 10 cards, then 17 after scrolling ("You've seen all 17"); 3 matches searched on the server; tutor search 8; no-match → Show all |
+
+## 2b. Home & navigation (PWA)
+
+| ID | Pri | Case | Steps | Expected |
+|---|---|---|---|---|
+| HOME-01 | P1 | Student Home | student1 → Home → My classes | Greeting "Hi, Dimas 👋"; banner "Next up: Math Group A"; stat tiles (6h left, All paid); featured classes; nav Home · Explore · My classes · Invoices with the active item marked |
+| HOME-02 | P1 | New / unpaid student | student2 opens old /student/browse, then enrolls | Redirected to Explore; Home shows banner "Find your first class", then "Almost there!" with a Pay invoice action and Rp1,800,000 to pay |
+| HOME-03 | P1 | Tutor Home | tutor1 → Home | Greeting "Hi, Budi 👋"; banner "Next up"; stats incl. pending approval Rp300,000; nav Home · Logbooks · Earnings |
+| HOME-05 | P1 | Featured carousel | Demo catalogue → student Home | 3 featured cards of equal height in a horizontally snapping row, a "See all 17 classes" card; "See all" → /student/explore (no extra Explore button) |
+| HOME-04 | P1 | Profile sheet | Tap the avatar | Bottom sheet with name, email, role, friendly copy; Esc closes and focus returns to the avatar; Log out works |
 
 ## 3. Tutor journey (PWA)
 
@@ -78,6 +90,7 @@ Priority: **P0** = must pass before submitting · **P1** = important · **P2** =
 | TUT-09 | P0 | Submit month | Complete all entries → Finalise & submit | Status "Awaiting review"; form locked |
 | TUT-10 | P0 | Cancel a lesson | Upcoming lesson → Cancel with a reason | Lesson marked cancelled; students' hours released |
 | TUT-11 | P0 | Earnings: approved vs pending | tutor1 → Earnings | Approved Rp300,000 (2 × 1h30 × Rp100,000), Pending Rp300,000; per-lesson lines Rp150,000 |
+| TUT-17 | P1 | My classes menu | Tutor → My classes | Card shows "1 active student(s)", "1 of 2 seats", tutor rate; Schedule opens the class |
 | TUT-12 | P1 | Sent-back logbook loop | Admin requests changes → tutor home | "was sent back" card; month shows admin comment; edit + Resubmit works |
 | TUT-13 | P1 | Approved month is read-only | Open the approved month | No Edit buttons; "Approved" alert |
 | TUT-14 | P1 | Other tutor's class | tutor2 opens `/tutor/classes/<Math Group A id>` | Not found; no data leaked |
@@ -173,7 +186,7 @@ Priority: **P0** = must pass before submitting · **P1** = important · **P2** =
 
 ---
 
-**Total: 96 cases** (P0 = 49, P1 = 37, P2 = 10).
+**Total: 104 cases** (P0 = 49, P1 = 43, P2 = 12).
 
 ## Structure
 
