@@ -33,6 +33,21 @@ export function endedLessonThisMonth() {
 }
 
 /**
+ * A 60-minute slot that ended at least 15 minutes ago, on 15-minute boundaries
+ * (the time inputs use step=900), on today's WIB date. Null early in the WIB day.
+ */
+export function endedSlotToday(): { date: string; start: string; end: string } | null {
+  const q = 15 * 60_000;
+  const end = Math.floor((Date.now() - q) / q) * q;
+  const start = end - 60 * 60_000;
+  const s = wibParts(new Date(start));
+  const e = wibParts(new Date(end));
+  const today = wibParts(new Date()).date;
+  if (s.date !== today || e.date !== today) return null;
+  return { date: today, start: s.time, end: e.time };
+}
+
+/**
  * Device profiles usable in `test.use()` inside the chromium project
  * (defaultBrowserType can't be changed per describe block).
  */
