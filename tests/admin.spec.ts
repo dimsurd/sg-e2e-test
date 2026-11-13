@@ -102,7 +102,7 @@ test.describe("Admin journey", () => {
 
   test("ADM-04 undo is refused once hours were used @p0", async ({ page }) => {
     await admin(page, "/invoices");
-    await page.getByRole("tab", { name: "Paid", exact: true }).click();
+    await page.getByRole("button", { name: "Paid", exact: true }).click();
     const no = (await one<{ invoice_no: string }>("SELECT invoice_no FROM invoices WHERE id = $1", [IDS.student1Invoice])).invoice_no;
     await page.getByRole("button", { name: `More actions for ${no}` }).click();
     await page.getByRole("menuitem", { name: "Undo payment" }).click();
@@ -115,14 +115,14 @@ test.describe("Admin journey", () => {
 
   test("ADM-05 undo works while no hours were used, with history @p0", async ({ page }) => {
     await admin(page, "/invoices");
-    await page.getByRole("tab", { name: "Paid", exact: true }).click();
+    await page.getByRole("button", { name: "Paid", exact: true }).click();
     await page.getByRole("button", { name: `More actions for ${student2InvoiceNo}` }).click();
     await page.getByRole("menuitem", { name: "Undo payment" }).click();
     await page.getByLabel("Reason").fill("Transfer bounced");
     await page.getByRole("button", { name: "Undo payment" }).click();
     await expect(page.getByText(`Payment on ${student2InvoiceNo} was undone`)).toBeVisible();
 
-    await page.getByRole("tab", { name: "Unpaid", exact: true }).click();
+    await page.getByRole("button", { name: "Unpaid", exact: true }).click();
     await page.getByRole("button", { name: `More actions for ${student2InvoiceNo}` }).click();
     await page.getByRole("menuitem", { name: "History" }).click();
     const dialog = page.getByRole("dialog");
@@ -188,7 +188,7 @@ test.describe("Admin journey", () => {
 
   test("ADM-16 lessons page: tabs, filter and cancel @p1", async ({ page }) => {
     await admin(page, "/lessons");
-    await expect(page.getByRole("tab", { name: "Upcoming", exact: true })).toHaveAttribute("data-state", "active");
+    await expect(page.getByRole("button", { name: "Upcoming", exact: true })).toHaveAttribute("aria-pressed", "true");
     const rows = page.locator("tbody tr");
     await expect(rows.first()).toBeVisible();
     await page.getByRole("combobox", { name: "Class" }).click();
@@ -202,7 +202,7 @@ test.describe("Admin journey", () => {
     await page.getByRole("button", { name: "Cancel lesson" }).click();
     await expect(page.getByText("Lesson cancelled — students' hours were released")).toBeVisible();
     await expect(rows.filter({ hasText: "Public holiday" })).toHaveCount(1);
-    await page.getByRole("tab", { name: "Past", exact: true }).click();
+    await page.getByRole("button", { name: "Past", exact: true }).click();
     await expect(rows.filter({ hasText: "Entry missing" }).or(rows.filter({ hasText: "Logged" })).first()).toBeVisible();
   });
 

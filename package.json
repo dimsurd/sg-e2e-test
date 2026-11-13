@@ -4,8 +4,10 @@
   "description": "End-to-end tests for sg-api, sg-app and sg-backoffice",
   "type": "module",
   "scripts": {
-    "test": "playwright test",
-    "test:p0": "playwright test --grep @p0",
+    "build:apps": "node scripts/build-apps.mjs",
+    "test": "pnpm build:apps && playwright test",
+    "test:fast": "playwright test",
+    "test:p0": "pnpm build:apps && playwright test --grep @p0",
     "report": "playwright show-report",
     "typecheck": "tsc --noEmit"
   },

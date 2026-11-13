@@ -93,34 +93,26 @@ test.describe("PWA (production build)", () => {
     await expect(page.getByText("You're offline — we'll refresh")).toHaveCount(0);
   });
 
-  test("PWA-06 install card (Chromium): install, and 'Not now' is remembered @p1", async ({ page }) => {
+  test("PWA-06 install button (Chromium/Android): menu guide, then native prompt @p1", async ({ page }) => {
     await login(page, "student1");
     await page.goto(`${APP}/student`);
-    // Android before Chrome offers a prompt: the card explains the browser-menu route.
-    await expect(page.getByText("Install the app")).toBeVisible();
-    await page.getByRole("button", { name: "Install", exact: true }).click();
+    const install = page.getByRole("button", { name: "Install app" });
+
+    // Android before Chrome offers a prompt: the button explains the browser-menu route.
+    await expect(install).toBeVisible();
+    await install.click();
     await expect(page.getByRole("dialog")).toContainText("Your browser installs apps from its menu.");
     await page.getByRole("button", { name: "Got it" }).click();
 
-    // Once Chrome offers the prompt, Install opens the native dialog instead.
+    // Once Chrome offers the prompt, the same button opens the native dialog.
     await fakeInstallPrompt(page);
-    await expect(page.getByText("Install the app")).toBeVisible();
-    await page.getByRole("button", { name: "Install", exact: true }).click();
+    await install.click();
     await expect(page.getByText("Star Generation is on your home screen")).toBeVisible();
     expect(await page.evaluate(() => (window as unknown as Record<string, number>).__promptCalls)).toBe(1);
 
-    // A new prompt event later, then "Not now" → stays hidden after reload.
-    await fakeInstallPrompt(page, "dismissed");
-    await expect(page.getByText("Install the app")).toBeVisible();
-    await page.getByRole("button", { name: "Not now" }).click();
-    await expect(page.getByText("Install the app")).toHaveCount(0);
-    await page.reload();
-    await fakeInstallPrompt(page);
-    await page.waitForTimeout(300);
-    await expect(page.getByText("Install the app")).toHaveCount(0);
-    // The account menu still offers it.
-    await page.getByRole("button", { name: "Account" }).click();
-    await expect(page.getByRole("menuitem", { name: "Install app" })).toBeVisible();
+    // Available on every screen, not only the home screen.
+    await page.goto(`${APP}/student/invoices`);
+    await expect(page.getByRole("button", { name: "Install app" })).toBeVisible();
   });
 
   test("PWA-08 logout clears cached pages @p2", async ({ page }) => {
@@ -146,8 +138,7 @@ test.describe("PWA on iPhone", () => {
   test("PWA-07 iOS shows the Share → Add to Home Screen guide @p1 @ios", async ({ page }) => {
     await login(page, "student1");
     await page.goto(`${APP}/student`);
-    await expect(page.getByText("Install the app")).toBeVisible();
-    await page.getByRole("button", { name: "Install", exact: true }).click();
+    await page.getByRole("button", { name: "Install app" }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog.getByRole("heading", { name: "Add to your home screen" })).toBeVisible();
     await expect(dialog).toContainText("Tap the Share button");

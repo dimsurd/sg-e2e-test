@@ -147,7 +147,7 @@ Priority: **P0** = must pass before submitting · **P1** = important · **P2** =
 | PWA-03 | P0 | API is never cached | After visiting pages, no `/api/` entries in any Cache Storage |
 | PWA-04 | P1 | Offline fallback | Go offline → navigate to an uncached page → offline page shown; offline banner visible |
 | PWA-05 | P1 | Back online resumes | Reconnect → banner disappears, data loads |
-| PWA-06 | P1 | Install card — Chromium | Install card visible on home screen; hidden after "Not now" and stays hidden after reload |
+| PWA-06 | P1 | Install button — Chromium/Android | Header "Install app" button: menu guide before Chrome offers a prompt, native prompt after; present on every screen |
 | PWA-07 | P1 | Install guide — iOS | On iPhone (WebKit) device profile, Install opens the Share → Add to Home Screen guide |
 | PWA-08 | P2 | Logout clears cached pages | After logout, page cache contains only `/offline` |
 

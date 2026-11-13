@@ -41,7 +41,7 @@ test.describe("Cross-app consistency", () => {
 
     // Admin sees the payment.
     await admin.goto(`${BO}/invoices`);
-    await admin.getByRole("tab", { name: "Paid", exact: true }).click();
+    await admin.getByRole("button", { name: "Paid", exact: true }).click();
     await expect(admin.locator("tr").filter({ hasText: "Eka Wulandari" })).toContainText("Paid");
 
     // Tutor records a lesson held earlier today (WIB) and logs it.
